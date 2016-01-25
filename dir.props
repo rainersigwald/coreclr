@@ -1,12 +1,15 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!--
-    $(OS) is set to Unix/Windows_NT. This comes from an environment variable on Windows and MSBuild on Unix.
+    $(OS) is set to Unix/Windows_NT.
   -->
   <PropertyGroup>
     <OsEnvironment Condition="'$(OsEnvironment)'==''">$(OS)</OsEnvironment>
+    <!-- MSBuild reports OSX specifically, but our build only distinguishes between
+         Unix and Windows. -->
+    <OsEnvironment Condition="'$(OS)'=='OSX'">Unix</OsEnvironment>
   </PropertyGroup>
-  
+
   <!-- Build Tools Versions -->
   <PropertyGroup>
     <BuildToolsVersion>1.0.25-prerelease-00121</BuildToolsVersion>
@@ -20,11 +23,11 @@
     <BuildToolsCoreCLRPackageName>Microsoft.DotNet.BuildTools.CoreCLR</BuildToolsCoreCLRPackageName>
     <BuildToolsCoreCLRLocation>$(ToolsDir)$(BuildToolsCoreCLRPackageName).$(BuildToolsCoreCLRVersion)</BuildToolsCoreCLRLocation>
   </PropertyGroup>
-  
+
   <!-- Common properties -->
   <PropertyGroup>
     <!-- Set basic properties and normalize -->
-    
+
     <BuildArch>$(__BuildArch)</BuildArch>
     <BuildArch Condition="'$(__BuildArch)'==''">x64</BuildArch>
     <BuildArch Condition="'$(__BuildArch)' == 'amd64'">x64</BuildArch>
@@ -59,16 +62,16 @@
     -->
     <PackagesBinDir>$(__PackagesBinDir)</PackagesBinDir>
     <PackagesBinDir Condition="'$(__PackagesBinDir)'==''">$(BinDir).nuget</PackagesBinDir>
-    
+
     <ToolsDir Condition="'$(ToolsDir)'==''">$(PackagesDir)Microsoft.DotNet.BuildTools.$(BuildToolsVersion)/lib/</ToolsDir>
     <BuildToolsSemaphore Condition="'$(BuildToolsSemaphore)' == ''">$(ToolsDir)Microsoft.DotNet.Build.Tasks.dll</BuildToolsSemaphore>
     <!-- Directory for the CoreCLR tools (BCLRewriter, etc.) -->
     <CoreCLRToolsDir>$(PackagesDir)Microsoft.DotNet.BuildTools.CoreCLR.$(BuildToolsCoreCLRVersion)/</CoreCLRToolsDir>
-    
+
     <TestWorkingDir>$(__TestWorkingDir)\</TestWorkingDir>
     <TestWorkingDir Condition="'$(__TestWorkingDir)'==''">$(RootBinDir)tests\$(BuildOS).$(BuildArch).$(BuildType)\</TestWorkingDir>
   </PropertyGroup>
-  
+
   <!-- Common nuget properties -->
   <PropertyGroup>
     <NuGetToolPath Condition="'$(NuGetToolPath)'==''">$(PackagesDir)NuGet.exe</NuGetToolPath>
@@ -84,7 +87,7 @@
     <NugetRestoreCommand>$(NugetRestoreCommand) -Verbosity detailed</NugetRestoreCommand>
     <NugetRestoreCommand Condition="'$(OsEnvironment)'=='Unix'">mono $(NuGetRestoreCommand)</NugetRestoreCommand>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <DnxPackageDir Condition="'$(DnxPackageDir)'==''">$(PackagesDir)/$(DnxPackageName)/</DnxPackageDir>
     <DnuToolPath Condition="'$(DnuToolPath)'=='' and '$(OsEnvironment)'!='Unix'">$(DnxPackageDir)\bin\dnu.cmd</DnuToolPath>
@@ -95,7 +98,7 @@
     <DnuRestoreCommand>$(DnuRestoreCommand) --packages "$(PackagesDir.TrimEnd('\\'))"</DnuRestoreCommand>
     <DnuRestoreCommand Condition="'$(LockDependencies)' == 'true'">$(DnuRestoreCommand) --lock</DnuRestoreCommand>
   </PropertyGroup>
-  
+
   <!-- Common build tool properties -->
   <!-- <PropertyGroup>
     <BuildToolsCoreCLRPackageName>Microsoft.DotNet.BuildTools.CoreCLR</BuildToolsCoreCLRPackageName>
@@ -132,7 +135,7 @@
     <TargetsLinux Condition="'$(BuildOS)' == 'Linux'">true</TargetsLinux>
     <TargetsOSX Condition="'$(BuildOS)' == 'OSX'">true</TargetsOSX>
     <TargetsWindows Condition="'$(BuildOS)' == 'Windows_NT'">true</TargetsWindows>
-    
+
     <TargetsUnix Condition="'$(TargetsFreeBSD)' == 'true' or '$(TargetsLinux)' == 'true' or '$(TargetsOSX)' == 'true'">true</TargetsUnix>
   </PropertyGroup>
 </Project>
